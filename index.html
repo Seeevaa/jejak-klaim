@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jejak Klaim — terminal</title>
+<style>
+:root{--bg:#000;--pn:#0b0b0b;--bd:#2a2a2a;--am:#ffb000;--fg:#d8d8d8;--mut:#8a8a8a;--ok:#3ddc84;--bad:#ff5c5c;--mid:#ffb000}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+header{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:10px 12px;border-bottom:1px solid var(--bd);background:var(--pn)}
+h1{margin:0;font-size:15px;color:var(--am);letter-spacing:.08em}
+#stamp{color:var(--mut)}
+#stale{display:none;background:var(--bad);color:#000;padding:6px 12px;font-weight:700}
+main{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:8px;padding:8px}
+section{background:var(--pn);border:1px solid var(--bd);min-width:0}
+section h2{margin:0;padding:6px 10px;border-bottom:1px solid var(--bd);font-size:12px;color:var(--am);letter-spacing:.06em;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.lb{font-size:10px;border:1px solid;padding:0 6px;border-radius:2px;white-space:nowrap}
+.auto{color:var(--am)}.man{color:var(--ok)}
+.row{padding:6px 10px;border-bottom:1px solid #161616;overflow-wrap:anywhere}
+.row:last-child{border-bottom:0}
+a{color:#8ec5ff;text-decoration:none}a:hover{text-decoration:underline}
+.n{color:var(--mut)}.up{color:var(--ok)}
+.v{font-weight:700;margin-right:6px}.v-salah{color:var(--bad)}.v-benar{color:var(--ok)}.v-setengah,.v-belum_terbukti{color:var(--mid)}
+.err{color:var(--bad)}
+footer{padding:8px 12px;color:var(--mut);font-size:11px}
+</style>
+</head>
+<body>
+<header><h1>JEJAK KLAIM</h1><span id="stamp">memuat…</span></header>
+<div id="stale"></div>
+<main>
+<section><h2><span>TOPIK NAIK</span><span class="lb auto">OTOMATIS · BELUM DIVERIFIKASI</span></h2><div id="hot"></div></section>
+<section><h2><span>WATCHLIST KLAIM</span><span class="lb man">VONIS: MANUSIA</span></h2><div id="claims"></div></section>
+<section><h2><span>FEED TERBARU</span><span class="lb auto">OTOMATIS</span></h2><div id="feed"></div></section>
+<section><h2><span>STATUS SUMBER</span></h2><div id="src"></div></section>
+</main>
+<footer id="foot"></footer>
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const url=u=>/^https?:\/\//i.test(u||'')?esc(u):'#';
+const fmt=s=>s?new Date(s).toLocaleString('id-ID',{dateStyle:'short',timeStyle:'short'}):'-';
+const VL={salah:'SALAH',benar:'BENAR',setengah:'SETENGAH BENAR',belum_terbukti:'BELUM TERBUKTI'};
+fetch('data/latest.json?t='+Date.now()).then(r=>r.json()).then(d=>{
+  $('stamp').textContent='diperbarui '+fmt(d.generated_at)+' · jam acuan '+fmt(d.jam_acuan);
+  const age=(Date.now()-new Date(d.generated_at))/36e5;
+  if(age>2){$('stale').style.display='block';$('stale').textContent='DATA USANG: pembaruan terakhir '+age.toFixed(1)+' jam lalu';}
+  $('hot').innerHTML=d.warmup_jam>0?'<div class="row n">Mengumpulkan baseline 24 jam: sisa maksimal '+d.warmup_jam+' jam sebelum topik naik ditampilkan.</div>':d.hotspots.length?d.hotspots.map(h=>`<div class="row"><b>${esc(h.topik)}</b> <span class="up">skor ${h.skor}</span> <span class="n">(n ${h.n}, rata-rata ${h.rata_rata_24j})</span>${h.contoh.map(c=>`<div class="n">· <a href="${url(c.url)}" target="_blank" rel="noopener noreferrer">${esc(c.judul)}</a> ${esc(c.domain)}</div>`).join('')}</div>`).join(''):'<div class="row n">Belum ada topik yang melewati ambang.</div>';
+  $('claims').innerHTML=d.claims.map(c=>`<div class="row"><span class="v v-${esc(c.vonis)}">${VL[c.vonis]||'-'}</span>${esc(c.teks)}<div class="n">${esc(c.catatan)}</div><div class="n">asal terdeteksi: ${fmt(c.first_seen_at)} · keyakinan ${esc(c.keyakinan_asal)} · jam ini n ${c.n}, skor ${c.skor}</div></div>`).join('');
+  $('feed').innerHTML=d.feed.map(f=>`<div class="row"><span class="n">${fmt(f.published_at)}</span> <a href="${url(f.url)}" target="_blank" rel="noopener noreferrer">${esc(f.judul)}</a> <span class="n">${esc(f.domain)}</span></div>`).join('')||'<div class="row n">Belum ada item.</div>';
+  $('src').innerHTML=d.sources.map(s=>`<div class="row"><b>${esc(s.nama)}</b> <span class="n">${esc(s.tipe)}</span><div class="n">sukses terakhir: ${fmt(s.terakhir_sukses)}</div>${s.error_terakhir?`<div class="err">${esc(s.error_terakhir)}</div>`:''}</div>`).join('');
+  $('foot').textContent='Rumus: '+d.rumus+'. "Terdeteksi otomatis" berarti belum diverifikasi. Titik awal = kemunculan paling awal yang terdeteksi sistem ini, bukan asal pasti.';
+}).catch(e=>{$('stamp').textContent='gagal memuat data: '+e.message;});
+</script>
+</body>
+</html>

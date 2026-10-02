@@ -1,0 +1,61 @@
+name: hourly
+
+on:
+  schedule:
+    - cron: "7 * * * *"   # menit ke-7 tiap jam (UTC); jadwal GitHub bisa tertunda
+  workflow_dispatch:       # tombol "Run workflow" untuk uji manual
+
+permissions:
+  contents: write          # hanya untuk commit keepalive dua kali sebulan
+  pages: write
+  id-token: write
+
+concurrency:
+  group: hourly
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # Database disimpan di cache Actions, bukan di git, supaya riwayat repo tidak membengkak.
+      - uses: actions/cache@v4
+        with:
+          path: data/jejak.db
+          key: db-${{ github.run_id }}
+          restore-keys: db-
+
+      - name: Jalankan pipeline
+        env:
+          FACTCHECK_API_KEY: ${{ secrets.FACTCHECK_API_KEY }}   # opsional
+        run: python3 ingest.py
+
+      - name: Susun situs
+        run: |
+          mkdir -p _site/data
+          cp index.html _site/
+          cp data/latest.json _site/data/
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - id: deploy
+        uses: actions/deploy-pages@v4
+
+      # Workflow terjadwal di repo publik dinonaktifkan otomatis jika 60 hari tanpa aktivitas repo.
+      # Commit kosong tanggal 1 dan 16 (jam 01 UTC) menjaga repo tetap "aktif".
+      - name: Keepalive
+        run: |
+          if [ "$(date -u +%d-%H)" = "01-01" ] || [ "$(date -u +%d-%H)" = "16-01" ]; then
+            git config user.name "github-actions"
+            git config user.email "actions@users.noreply.github.com"
+            git commit --allow-empty -m "keepalive"
+            git push
+          fi

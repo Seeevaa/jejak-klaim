@@ -1,0 +1,24 @@
+{
+  "_catatan": "GDELT hanya 1 kueri agar tidak kena batas 1 permintaan per 5 detik per IP. Dua feed Google News RSS (tidak resmi, tanpa dokumentasi formal) jadi cadangan; tambahkan feed RSS 2.0 lain yang sudah kamu cek sendiri. Ambang hotspot adalah nilai awal.",
+  "gdelt_timespan": "2h",
+  "gdelt_queries": [
+    "(hoaks OR klarifikasi OR \"cek fakta\" OR viral OR sains OR kesehatan OR BMKG) sourcelang:indonesian"
+  ],
+  "rss": [
+    {
+      "nama": "Google News: hoaks dan klarifikasi",
+      "url": "https://news.google.com/rss/search?q=hoaks+OR+klarifikasi+OR+%22cek+fakta%22+when:1d&hl=id&gl=ID&ceid=ID:id"
+    },
+    {
+      "nama": "Google News: sains dan kesehatan",
+      "url": "https://news.google.com/rss/search?q=sains+OR+kesehatan+OR+BMKG+OR+vaksin+when:1d&hl=id&gl=ID&ceid=ID:id"
+    }
+  ],
+  "factcheck_queries": [
+    "hoaks",
+    "viral"
+  ],
+  "hotspot_min_n": 3,
+  "hotspot_min_skor": 3,
+  "retention_days": 3
+}

@@ -1,0 +1,43 @@
+[
+  {
+    "id": "gravitasi-7-detik",
+    "teks": "Bumi kehilangan gravitasi selama 7 detik pada 12 Agustus 2026",
+    "vonis": "salah",
+    "keyakinan_asal": "Sedang",
+    "catatan": "Asal: unggahan satu pengguna Instagram/TikTok yang akunnya kini hilang. NASA menyatakan gravitasi tidak akan hilang.",
+    "kata_kunci": ["gravitasi bumi", "gravitasi 7 detik", "12 agustus 2026"]
+  },
+  {
+    "id": "squall-line-tahun-baru",
+    "teks": "BMKG mendeteksi squall line raksasa yang mengancam Jawa pada malam tahun baru 2025/2026",
+    "vonis": "salah",
+    "keyakinan_asal": "Sedang",
+    "catatan": "Asal: unggahan akun Facebook 28 Des 2025. BMKG tidak pernah merilis peringatan itu; squall line sendiri fenomena nyata.",
+    "first_seen_at": "2025-12-28T00:00:00Z",
+    "kata_kunci": ["squall line"]
+  },
+  {
+    "id": "robot-hamil-china",
+    "teks": "China mengembangkan robot yang bisa mengandung dan melahirkan bayi",
+    "vonis": "salah",
+    "keyakinan_asal": "Sedang",
+    "catatan": "Asal: wawancara Douyin (menurut media). Detik menyimpulkan tidak nyata setelah NTU membantah afiliasi pengembangnya.",
+    "kata_kunci": ["robot hamil", "robot mengandung", "robot melahirkan"]
+  },
+  {
+    "id": "super-flu-lebih-parah",
+    "teks": "Super flu lebih parah atau lebih mematikan dibanding COVID-19",
+    "vonis": "setengah",
+    "keyakinan_asal": "Rendah",
+    "catatan": "Varian H3N2 subclade K nyata; Kemenkes menyebut belum ada bukti ilmiah keparahannya lebih tinggi.",
+    "kata_kunci": ["super flu", "subclade k"]
+  },
+  {
+    "id": "nyamuk-islandia",
+    "teks": "Islandia tidak lagi bebas nyamuk",
+    "vonis": "benar",
+    "keyakinan_asal": "Tinggi",
+    "catatan": "Tiga nyamuk ditemukan dan dikonfirmasi; sumber yang diperiksa tidak melaporkan populasi menetap. Vonis bergantung definisi.",
+    "kata_kunci": ["nyamuk islandia", "nyamuk di islandia", "islandia nyamuk"]
+  }
+]
