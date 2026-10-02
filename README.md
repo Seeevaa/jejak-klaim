@@ -13,6 +13,8 @@ Alur: **GitHub Actions (tiap jam)** → `ingest.py` → **SQLite** (disimpan di 
 ## Mengubah vonis
 Edit `claims.json` di GitHub, lalu commit. Vonis hanya berasal dari file ini dan **tidak pernah diisi otomatis**.
 
+Field opsional per klaim: `sumber` (daftar `{nama, url}` bukti), `vonis_oleh`, `vonis_tanggal`. Klaim tanpa `sumber` ditandai merah "TANPA SUMBER BUKTI" di tampilan. `vonis` boleh `null` (tampil "BELUM DINILAI"). Di panel Antrian Review, tombol "Salin kerangka klaim" menyalin kerangka JSON untuk topik naik yang belum punya klaim.
+
 ## Rumus hotspot
 - `n` = jumlah item yang memuat topik itu pada jam terakhir yang sudah lengkap (UTC).
 - `rata-rata` = (jumlah item topik itu pada 24 jam sebelumnya) ÷ 24; jam tanpa item dihitung 0.

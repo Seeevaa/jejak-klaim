@@ -2,56 +2,90 @@
 <html lang="id">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Jejak Klaim — terminal</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jejak Klaim</title>
 <style>
-:root{--bg:#000;--pn:#0b0b0b;--bd:#2a2a2a;--am:#ffb000;--fg:#d8d8d8;--mut:#8a8a8a;--ok:#3ddc84;--bad:#ff5c5c;--mid:#ffb000}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--fg);font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
-header{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:10px 12px;border-bottom:1px solid var(--bd);background:var(--pn)}
-h1{margin:0;font-size:15px;color:var(--am);letter-spacing:.08em}
-#stamp{color:var(--mut)}
-#stale{display:none;background:var(--bad);color:#000;padding:6px 12px;font-weight:700}
-main{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:8px;padding:8px}
+:root{--bg:#050505;--pn:#0d0d0d;--bd:#262626;--am:#ffb000;--fg:#e0e0e0;--mut:#8a8a8a;--ok:#3ddc84;--bad:#ff5c5c;--lk:#8ec5ff;--dm:#2b2000;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#f4f4ef;--pn:#fff;--bd:#d6d6cc;--am:#9a5b00;--fg:#1c1c1a;--mut:#6b6b64;--ok:#15803d;--bad:#b91c1c;--lk:#1d4ed8;--dm:#fff3d1}}
+:root[data-theme="light"]{--bg:#f4f4ef;--pn:#fff;--bd:#d6d6cc;--am:#9a5b00;--fg:#1c1c1a;--mut:#6b6b64;--ok:#15803d;--bad:#b91c1c;--lk:#1d4ed8;--dm:#fff3d1}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+header{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 12px;border-bottom:1px solid var(--bd);background:var(--pn)}
+h1{margin:0;font-size:15px;color:var(--am);letter-spacing:.1em}.n{color:var(--mut)}
+#ban{display:none;padding:7px 12px;font-weight:700;background:var(--dm);color:var(--am);border-bottom:1px solid var(--bd)}#ban.bad{background:var(--bad);color:#000}
+.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;padding:8px 8px 0}
+.k{background:var(--pn);border:1px solid var(--bd);padding:8px 10px}.k b{display:block;font-size:22px;color:var(--am);line-height:1.2}.k span{font-size:11px;color:var(--mut)}
+main{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(360px,100%),1fr));gap:8px;padding:8px}.w{grid-column:1/-1}
 section{background:var(--pn);border:1px solid var(--bd);min-width:0}
-section h2{margin:0;padding:6px 10px;border-bottom:1px solid var(--bd);font-size:12px;color:var(--am);letter-spacing:.06em;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
-.lb{font-size:10px;border:1px solid;padding:0 6px;border-radius:2px;white-space:nowrap}
-.auto{color:var(--am)}.man{color:var(--ok)}
-.row{padding:6px 10px;border-bottom:1px solid #161616;overflow-wrap:anywhere}
-.row:last-child{border-bottom:0}
-a{color:#8ec5ff;text-decoration:none}a:hover{text-decoration:underline}
-.n{color:var(--mut)}.up{color:var(--ok)}
-.v{font-weight:700;margin-right:6px}.v-salah{color:var(--bad)}.v-benar{color:var(--ok)}.v-setengah,.v-belum_terbukti{color:var(--mid)}
-.err{color:var(--bad)}
-footer{padding:8px 12px;color:var(--mut);font-size:11px}
+h2{margin:0;padding:7px 10px;border-bottom:1px solid var(--bd);font-size:12px;color:var(--am);letter-spacing:.06em;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.lb{font-size:10px;border:1px solid;padding:0 6px;border-radius:2px;white-space:nowrap}.auto{color:var(--am)}.man{color:var(--ok)}
+.row{padding:8px 10px;border-bottom:1px solid var(--bd);overflow-wrap:anywhere}.row:last-child{border-bottom:0}
+a{color:var(--lk);text-decoration:none}a:hover{text-decoration:underline}
+.v{font-weight:700;margin-right:6px}.v-salah{color:var(--bad)}.v-benar{color:var(--ok)}.v-setengah,.v-belum_terbukti,.v-none{color:var(--am)}
+.warn{color:var(--bad)}.up{color:var(--ok)}
+.sp{width:96px;height:24px;color:var(--am);vertical-align:middle}.vol{width:100%;height:auto;display:block;padding:8px}
+.vol rect{fill:var(--am);opacity:.55}.vol rect:last-of-type{opacity:1}.vol text{fill:var(--mut);font-size:10px}
+.hb{height:6px;background:var(--bd);margin:4px 0}.hb i{display:block;height:100%;background:var(--am)}
+button{font:inherit;font-size:11px;color:var(--lk);background:none;border:1px solid var(--bd);padding:1px 8px;cursor:pointer}
+#toast{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));background:var(--am);color:#000;padding:8px 12px;display:none;font-weight:700}
+footer{padding:8px 12px 20px;color:var(--mut);font-size:11px}
 </style>
 </head>
 <body>
-<header><h1>JEJAK KLAIM</h1><span id="stamp">memuat…</span></header>
-<div id="stale"></div>
+<header><h1>JEJAK KLAIM</h1><span class="n" id="stamp">memuat…</span></header>
+<div id="ban"></div>
+<div class="kpi" id="kpi"></div>
 <main>
-<section><h2><span>TOPIK NAIK</span><span class="lb auto">OTOMATIS · BELUM DIVERIFIKASI</span></h2><div id="hot"></div></section>
-<section><h2><span>WATCHLIST KLAIM</span><span class="lb man">VONIS: MANUSIA</span></h2><div id="claims"></div></section>
+<section class="w"><h2><span>VOLUME BERITA PER JAM · 24 JAM TERAKHIR</span><span class="lb auto">OTOMATIS</span></h2><div id="vol"></div></section>
+<section><h2><span>ANTRIAN REVIEW: TOPIK NAIK</span><span class="lb auto">OTOMATIS · BELUM DIVERIFIKASI</span></h2><div id="hot"></div></section>
+<section><h2><span>WATCHLIST KLAIM</span><span class="lb man">VONIS: EDITOR MANUSIA</span></h2><div id="claims"></div></section>
+<section><h2><span>MEDIA TERBANYAK · 24 JAM</span><span class="lb auto">OTOMATIS</span></h2><div id="dom"></div></section>
 <section><h2><span>FEED TERBARU</span><span class="lb auto">OTOMATIS</span></h2><div id="feed"></div></section>
-<section><h2><span>STATUS SUMBER</span></h2><div id="src"></div></section>
+<section class="w"><h2><span>STATUS SUMBER</span></h2><div id="src"></div></section>
 </main>
 <footer id="foot"></footer>
+<div id="toast"></div>
 <script>
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const url=u=>/^https?:\/\//i.test(u||'')?esc(u):'#';
 const fmt=s=>s?new Date(s).toLocaleString('id-ID',{dateStyle:'short',timeStyle:'short'}):'-';
+const hh=s=>new Date(s).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
 const VL={salah:'SALAH',benar:'BENAR',setengah:'SETENGAH BENAR',belum_terbukti:'BELUM TERBUKTI'};
-fetch('data/latest.json?t='+Date.now()).then(r=>r.json()).then(d=>{
-  $('stamp').textContent='diperbarui '+fmt(d.generated_at)+' · jam acuan '+fmt(d.jam_acuan);
-  const age=(Date.now()-new Date(d.generated_at))/36e5;
-  if(age>2){$('stale').style.display='block';$('stale').textContent='DATA USANG: pembaruan terakhir '+age.toFixed(1)+' jam lalu';}
-  $('hot').innerHTML=d.warmup_jam>0?'<div class="row n">Mengumpulkan baseline 24 jam: sisa maksimal '+d.warmup_jam+' jam sebelum topik naik ditampilkan.</div>':d.hotspots.length?d.hotspots.map(h=>`<div class="row"><b>${esc(h.topik)}</b> <span class="up">skor ${h.skor}</span> <span class="n">(n ${h.n}, rata-rata ${h.rata_rata_24j})</span>${h.contoh.map(c=>`<div class="n">· <a href="${url(c.url)}" target="_blank" rel="noopener noreferrer">${esc(c.judul)}</a> ${esc(c.domain)}</div>`).join('')}</div>`).join(''):'<div class="row n">Belum ada topik yang melewati ambang.</div>';
-  $('claims').innerHTML=d.claims.map(c=>`<div class="row"><span class="v v-${esc(c.vonis)}">${VL[c.vonis]||'-'}</span>${esc(c.teks)}<div class="n">${esc(c.catatan)}</div><div class="n">asal terdeteksi: ${fmt(c.first_seen_at)} · keyakinan ${esc(c.keyakinan_asal)} · jam ini n ${c.n}, skor ${c.skor}</div></div>`).join('');
-  $('feed').innerHTML=d.feed.map(f=>`<div class="row"><span class="n">${fmt(f.published_at)}</span> <a href="${url(f.url)}" target="_blank" rel="noopener noreferrer">${esc(f.judul)}</a> <span class="n">${esc(f.domain)}</span></div>`).join('')||'<div class="row n">Belum ada item.</div>';
-  $('src').innerHTML=d.sources.map(s=>`<div class="row"><b>${esc(s.nama)}</b> <span class="n">${esc(s.tipe)}</span><div class="n">sukses terakhir: ${fmt(s.terakhir_sukses)}</div>${s.error_terakhir?`<div class="err">${esc(s.error_terakhir)}</div>`:''}</div>`).join('');
-  $('foot').textContent='Rumus: '+d.rumus+'. "Terdeteksi otomatis" berarti belum diverifikasi. Titik awal = kemunculan paling awal yang terdeteksi sistem ini, bukan asal pasti.';
-}).catch(e=>{$('stamp').textContent='gagal memuat data: '+e.message;});
+const spark=v=>{v=v&&v.length>1?v:[0,0];const m=Math.max(1,...v),w=96,h=24;return `<svg class="sp" viewBox="0 0 ${w} ${h}"><polyline fill="none" stroke="currentColor" stroke-width="1.5" points="${v.map((y,i)=>(i*w/(v.length-1)).toFixed(1)+','+(h-1-y/m*(h-3)).toFixed(1)).join(' ')}"/></svg>`};
+const vol=(v,t)=>{const m=Math.max(1,...v),w=480,h=100,b=w/v.length;return `<svg class="vol" viewBox="0 0 ${w} ${h+16}">${v.map((n,i)=>{const bh=n/m*h;return `<rect x="${i*b+1}" y="${h-bh}" width="${b-2}" height="${bh}"><title>${t[i]}: ${n} item</title></rect>`}).join('')}<text x="0" y="${h+13}">${t[0]}</text><text x="${w}" y="${h+13}" text-anchor="end">${t[t.length-1]}</text></svg>`};
+const kw=c=>(c.kata_kunci||[]).map(k=>k.toLowerCase());
+function stub(t){const s=JSON.stringify({id:t.replace(/\s+/g,'-'),teks:'',vonis:null,keyakinan_asal:'',catatan:'',sumber:[{nama:'',url:''}],vonis_oleh:'',vonis_tanggal:'',kata_kunci:[t]},null,2);const ok=()=>toast('Kerangka disalin. Tempel ke claims.json (di dalam tanda [ ]), lalu isi teks, vonis, dan sumber.');navigator.clipboard?navigator.clipboard.writeText(s).then(ok,()=>toast(s)):toast(s)}
+function toast(m){const e=$('toast');e.textContent=m;e.style.display='block';setTimeout(()=>e.style.display='none',6000)}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(b)stub(b.dataset.t)});
+function boot(d,demo){
+  $('stamp').textContent=demo?'mode contoh':'diperbarui '+fmt(d.generated_at);
+  const age=(Date.now()-new Date(d.generated_at))/36e5,ban=$('ban');
+  if(demo){ban.style.display='block';ban.textContent='DATA CONTOH: bukan hasil pipeline hidup. Angka dan grafik hanyalah ilustrasi.'}
+  else if(age>2){ban.style.display='block';ban.className='bad';ban.textContent='DATA USANG: pembaruan terakhir '+age.toFixed(1)+' jam lalu'}
+  const total=d.volume_24j.reduce((a,x)=>a+x.n,0),judged=d.claims.filter(c=>c.vonis).length,okSrc=d.sources.filter(s=>!s.error_terakhir).length;
+  $('kpi').innerHTML=[[total,'item berita 24 jam'],[d.hotspots.length,'topik naik'],[judged+'/'+d.claims.length,'klaim sudah dinilai'],[okSrc+'/'+d.sources.length,'sumber sehat']].map(x=>`<div class="k"><b>${x[0]}</b><span>${x[1]}</span></div>`).join('');
+  $('vol').innerHTML=vol(d.volume_24j.map(x=>x.n),d.volume_24j.map(x=>hh(x.jam)));
+  const ms=Math.max(1,...d.hotspots.map(h=>h.skor));
+  $('hot').innerHTML=d.warmup_jam>0?`<div class="row n">Mengumpulkan baseline 24 jam: sisa maksimal ${d.warmup_jam} jam sebelum topik naik ditampilkan.</div>`:d.hotspots.length?d.hotspots.map(h=>{const m=d.claims.find(c=>kw(c).some(k=>h.topik.includes(k)||k.includes(h.topik)));return `<div class="row"><b>${esc(h.topik)}</b> ${m&&m.vonis?`<span class="v v-${esc(m.vonis)}">${VL[m.vonis]}</span>`:'<span class="v v-none">BELUM DINILAI</span>'}<div class="hb"><i style="width:${Math.max(4,h.skor/ms*100)}%"></i></div>${spark(h.seri_24j)} <span class="up">skor ${h.skor}</span> <span class="n">n ${h.n} · rata-rata ${h.rata_rata_24j}</span>${h.contoh.slice(0,2).map(c=>`<div class="n">· <a href="${url(c.url)}" target="_blank" rel="noopener noreferrer">${esc(c.judul)}</a> ${esc(c.domain)}</div>`).join('')}${m?'':`<div><button data-t="${esc(h.topik)}">Salin kerangka klaim</button></div>`}</div>`}).join(''):'<div class="row n">Belum ada topik yang melewati ambang.</div>';
+  $('claims').innerHTML=d.claims.map(c=>`<div class="row"><span class="v v-${esc(c.vonis||'none')}">${VL[c.vonis]||'BELUM DINILAI'}</span>${esc(c.teks)}<div class="n">${esc(c.catatan)}</div><div>${spark(c.seri_24j)} <span class="n">jam ini n ${c.n}, skor ${c.skor}</span></div><div class="n">Vonis oleh: ${esc(c.vonis_oleh||'belum diisi')}${c.vonis_tanggal?' · '+esc(c.vonis_tanggal):''} · keyakinan asal ${esc(c.keyakinan_asal||'-')}</div><div class="n">${(c.sumber||[]).filter(s=>s.url).length?'Bukti: '+c.sumber.filter(s=>s.url).map(s=>`<a href="${url(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.nama||'sumber')}</a>`).join(' · '):'<span class="warn">TANPA SUMBER BUKTI</span>'}</div></div>`).join('');
+  const md=Math.max(1,...d.domain_teratas.map(x=>x.n));
+  $('dom').innerHTML=d.domain_teratas.map(x=>`<div class="row">${esc(x.domain)} <span class="n">${x.n}</span><div class="hb"><i style="width:${x.n/md*100}%"></i></div></div>`).join('')||'<div class="row n">Belum ada data.</div>';
+  $('feed').innerHTML=d.feed.slice(0,15).map(f=>`<div class="row"><span class="n">${fmt(f.published_at)}</span> <a href="${url(f.url)}" target="_blank" rel="noopener noreferrer">${esc(f.judul)}</a> <span class="n">${esc(f.domain)}</span></div>`).join('')||'<div class="row n">Belum ada item.</div>';
+  $('src').innerHTML=d.sources.map(s=>`<div class="row"><b>${esc(s.nama)}</b> <span class="n">${esc(s.tipe)} · sukses terakhir ${fmt(s.terakhir_sukses)}</span>${s.error_terakhir?`<div class="warn">${esc(s.error_terakhir)}</div>`:''}</div>`).join('');
+  $('foot').textContent='Rumus: '+d.rumus+'. Otomatis berarti belum diverifikasi; vonis hanya berasal dari editor di claims.json. Titik awal = kemunculan paling awal yang terdeteksi, bukan asal pasti.';
+}
+const now=Date.now(),mk=(b,p)=>Array.from({length:24},(_,i)=>i===23?p:b+(i*7)%3);
+const SAMPLE={generated_at:new Date().toISOString(),warmup_jam:0,rumus:'skor = n / rata-rata 24 jam sebelumnya (jika rata-rata 0: skor = n)',
+volume_24j:Array.from({length:24},(_,i)=>({jam:new Date(now-(23-i)*36e5).toISOString(),n:18+Math.round(10*Math.sin(i/3))+i%4})),
+domain_teratas:[{domain:'detik.com',n:41},{domain:'kompas.com',n:33},{domain:'cnnindonesia.com',n:27},{domain:'antaranews.com',n:19},{domain:'tirto.id',n:11}],
+hotspots:[{topik:'gravitasi bumi',n:12,rata_rata_24j:0.4,skor:30,seri_24j:mk(0,12),contoh:[{judul:'Jawaban NASA soal Bumi Kehilangan Gravitasi di Agustus 2026',url:'https://inet.detik.com/science/d-8323714/jawaban-nasa-soal-bumi-kehilangan-gravitasi-di-agustus-2026',domain:'inet.detik.com'}]},{topik:'gempa bumi',n:6,rata_rata_24j:1.1,skor:5.45,seri_24j:mk(1,6),contoh:[]},{topik:'super flu',n:5,rata_rata_24j:1.2,skor:4.17,seri_24j:mk(1,5),contoh:[]}],
+claims:[{teks:'Bumi kehilangan gravitasi selama 7 detik pada 12 Agustus 2026',vonis:'salah',keyakinan_asal:'Sedang',catatan:'Asal: unggahan satu pengguna Instagram/TikTok yang akunnya kini hilang. NASA menyatakan gravitasi tidak akan hilang.',n:12,skor:30,seri_24j:mk(0,12),kata_kunci:['gravitasi bumi'],vonis_oleh:'Draf, belum ditinjau editor',vonis_tanggal:'2026-10-02',sumber:[{nama:'detikInet',url:'https://inet.detik.com/science/d-8323714/jawaban-nasa-soal-bumi-kehilangan-gravitasi-di-agustus-2026'},{nama:'Bisnis.com',url:'https://teknologi.bisnis.com/read/20260204/84/1949921/viral-gravitasi-bumi-bakal-hilang-12-agustus-2026-begini-faktanya'}]},
+{teks:'Super flu lebih parah atau lebih mematikan dibanding COVID-19',vonis:'setengah',keyakinan_asal:'Rendah',catatan:'Varian H3N2 subclade K nyata; Kemenkes menyebut belum ada bukti ilmiah keparahannya lebih tinggi.',n:5,skor:4.17,seri_24j:mk(1,5),kata_kunci:['super flu'],vonis_oleh:'Draf, belum ditinjau editor',vonis_tanggal:'2026-10-02',sumber:[{nama:'detikHealth',url:'https://health.detik.com/berita-detikhealth/d-8289886/apakah-super-flu-lebih-mematikan-dari-covid-ini-kata-menkes'}]},
+{teks:'China mengembangkan robot yang bisa mengandung dan melahirkan bayi',vonis:null,keyakinan_asal:'Sedang',catatan:'Contoh klaim yang belum dinilai dan belum punya sumber bukti.',n:0,skor:0,seri_24j:mk(0,0),kata_kunci:['robot hamil']}],
+feed:[{judul:'Viral Gravitasi Bumi Bakal Hilang 12 Agustus 2026, Begini Faktanya',url:'https://teknologi.bisnis.com/read/20260204/84/1949921/viral-gravitasi-bumi-bakal-hilang-12-agustus-2026-begini-faktanya',domain:'bisnis.com',published_at:'2026-02-04T00:00:00Z'},{judul:'Super Flu Sudah Terdeteksi di Indonesia, Gejalanya Lebih Parah dari Covid',url:'https://www.detik.com/jateng/berita/d-8285527/super-flu-sudah-terdeteksi-di-indonesia-gejalanya-lebih-parah-dari-covid',domain:'detik.com',published_at:'2025-12-31T00:00:00Z'}],
+sources:[{nama:'GDELT',tipe:'gdelt',terakhir_sukses:null,error_terakhir:null},{nama:'Google News: hoaks dan klarifikasi',tipe:'rss',terakhir_sukses:null,error_terakhir:'URLError: contoh tampilan saat sumber gagal'}]};
+fetch('data/latest.json?t='+Date.now()).then(r=>{if(!r.ok)throw 0;return r.json()}).then(d=>boot(d,false)).catch(()=>boot(SAMPLE,true));
 </script>
 </body>
 </html>

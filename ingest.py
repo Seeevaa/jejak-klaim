@@ -253,26 +253,37 @@ def hotspots(con, cfg, ref):
     for term, byhour in per.items():
         n, base, skor = rate(lambda j: len(byhour.get(j, ())), cur)
         if n >= cfg.get("hotspot_min_n", 3) and skor >= cfg.get("hotspot_min_skor", 3):
-            out.append({"topik": term, "n": n, "rata_rata_24j": round(base, 2), "skor": round(skor, 2), "contoh": ex[term]})
+            out.append({"topik": term, "n": n, "rata_rata_24j": round(base, 2), "skor": round(skor, 2),
+                        "seri_24j": [len(byhour.get(iso(cur - timedelta(hours=h)), ())) for h in range(23, -1, -1)],
+                        "contoh": ex[term]})
     return sorted(out, key=lambda x: (-x["skor"], -x["n"]))[:15]
 
 
 # ---------- ekspor ----------
 def export(con, cfg, ref):
     cur = ref - timedelta(hours=1)
+    extra = {c["id"]: {k: c[k] for k in ("sumber", "vonis_oleh", "vonis_tanggal", "kata_kunci") if k in c}
+             for c in json.loads((ROOT / "claims.json").read_text(encoding="utf-8"))}
     claims = []
     for c in con.execute("SELECT * FROM claims ORDER BY id").fetchall():
         counts = {r["jam"]: r["jumlah"] for r in con.execute("SELECT jam,jumlah FROM hourly_counts WHERE claim_id=?", (c["id"],))}
         n, base, skor = rate(lambda j: counts.get(j, 0), cur)
         claims.append({"id": c["id"], "teks": c["teks"], "vonis": c["vonis"], "keyakinan_asal": c["keyakinan_asal"],
                        "catatan": c["catatan"], "first_seen_at": c["first_seen_at"],
-                       "n": n, "rata_rata_24j": round(base, 2), "skor": round(skor, 2)})
+                       "n": n, "rata_rata_24j": round(base, 2), "skor": round(skor, 2),
+                       "seri_24j": [counts.get(iso(cur - timedelta(hours=h)), 0) for h in range(23, -1, -1)],
+                       **extra.get(c["id"], {})})
     feed = [dict(r) for r in con.execute(
         "SELECT judul,url,domain,published_at FROM items ORDER BY published_at DESC LIMIT 40")]
+    start, end = iso(cur - timedelta(hours=23)), iso(ref)
+    per_jam = dict(con.execute("SELECT substr(published_at,1,13)||':00:00Z', COUNT(*) FROM items WHERE published_at >= ? AND published_at < ? GROUP BY 1", (start, end)).fetchall())
+    volume = [{"jam": iso(cur - timedelta(hours=h)), "n": per_jam.get(iso(cur - timedelta(hours=h)), 0)} for h in range(23, -1, -1)]
+    domains = [dict(r) for r in con.execute("SELECT domain, COUNT(*) AS n FROM items WHERE published_at >= ? AND published_at < ? AND domain IS NOT NULL GROUP BY domain ORDER BY n DESC LIMIT 8", (start, end))]
     sources = [dict(r) for r in con.execute("SELECT nama,tipe,terakhir_sukses,error_terakhir FROM sources ORDER BY nama")]
     payload = {"generated_at": iso(now()), "jam_acuan": iso(cur),
                "rumus": "skor = n / rata-rata 24 jam sebelumnya (jika rata-rata 0: skor = n)",
                "warmup_jam": warmup_left(con, ref),
+               "volume_24j": volume, "domain_teratas": domains,
                "hotspots": hotspots(con, cfg, ref), "claims": claims, "feed": feed, "sources": sources}
     OUT.write_text(json.dumps(payload, ensure_ascii=False, indent=1), encoding="utf-8")
 
